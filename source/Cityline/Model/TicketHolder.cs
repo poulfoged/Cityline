@@ -34,8 +34,11 @@ public class TicketHolder : ITicketHolder
         return Convert.ToBase64String(ms.ToArray());
     }
 
-    private object Decode<TTicket>(string source)
+    private TTicket Decode<TTicket>(string source) where TTicket : class
     {
+        if (string.IsNullOrWhiteSpace(source))
+            return null;
+
         var ms = new MemoryStream(Convert.FromBase64String(source));
         using (var textReader = new StreamReader(ms))
         using (JsonReader reader = new JsonTextReader(textReader))
@@ -45,7 +48,7 @@ public class TicketHolder : ITicketHolder
     public TTicket GetTicket<TTicket>() where TTicket : class
     {
         var decoded = Decode<TTicket>(_source);
-        return decoded as TTicket;
+        return decoded;
     }
 
     public string AsString() 
