@@ -1,9 +1,12 @@
+import EventTarget from "@ungap/event-target";
+
 interface EventMap {
     "received": CustomEvent<any>;
     "error": CustomEvent<string>;
 }
 
 export class CitylineClient {
+    private eventTarget = new EventTarget();
     private _protocol: ICitylineProtocol;
     private static _instance = new CitylineClient();
     private _initialize: Promise<void>;
@@ -20,6 +23,14 @@ export class CitylineClient {
         this._protocol = protocol;
         setTimeout(async () => this.initialize());
         return this;
+    }
+
+    addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions) {
+        return this.eventTarget.addEventListener(type, listener, options);
+    }
+
+    removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions) {
+        this.eventTarget.removeEventListener(type, listener, options);
     }
 
     private log(statement: () => string) {
@@ -51,25 +62,27 @@ export class CitylineClient {
                 r(); // ok, we are ready
             }, this.errorCallback, this._enableDebug);
         });
+
+        return this._initialize;
     }
 
     async latestFrame<T>(name: string, throwError = true) {
         await this.initialize();
         const latest = this._frames[name];
 
-        if (!latest && throwError)
+        if (!latest && throwError) {
+            console.log("Current set of frames:", this._frames, latest);
             throw new Error(`No frame named ${name}.`);
+        }
 
-        return latest;
+        return latest.cargo;
     }
 
     private callback = (response: CitylineResponse) => {
         for(const key in response.carriages) {
             this.log(() => `Storing frame ${key} and raising event`);
-            this._frames[name] = response.carriages[key]; 
-            console.log("data", response.carriages[key]);
-            // raise generic event
-            // raise specific event
+            this._frames[key] = response.carriages[key]; 
+            this.eventTarget.dispatchEvent(new CustomEvent(key, { detail: response.carriages[key] }))
         }
     }
 
@@ -80,7 +93,7 @@ export interface ICitylineProtocol {
     startListening(callback: (response: CitylineResponse) => void, errorCallback: (error: string) => void, enableDebug: boolean);
 }
 
-export class SkycityRestProtocol implements ICitylineProtocol {
+export class CitylineRestProtocol implements ICitylineProtocol {
     private _callback: (response: CitylineResponse) => void;
     private _errorCallback: (error: string) => void;
     private tickets: { [key: string]: string } = {};

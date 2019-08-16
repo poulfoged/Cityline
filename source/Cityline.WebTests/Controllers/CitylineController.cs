@@ -12,13 +12,20 @@ namespace Cityline.WebTests.Controllers
     [ApiController]
     public class CitylineController : ControllerBase
     {
+        private CitylineService _citylineService;
+
+        public CitylineController(IEnumerable<ICitylineProvider> providers) 
+        {
+            _citylineService = new CitylineService(providers);
+        }
+
         // GET api/values
         [HttpPost]
         public async Task<ActionResult<CitylineResponse>> StartAsync(Cityline.CitylineRequest request, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var service = new CitylineService(new [] {new SampleProvider()});
+            //var service = new CitylineService(new ICitylineProvider[] {new PingProvider(), new RandomProvider()});
             var context = new Context { RequestUrl = new Uri(Request.GetEncodedUrl()), User = User };
-            return await service.GetCarriage(request, context, cancellationToken);
+            return await _citylineService.GetCarriage(request, context, cancellationToken);
         }
     }
 }

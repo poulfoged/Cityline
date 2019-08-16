@@ -3,19 +3,18 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Cityline.WebTests
+namespace Cityline.WebTests.Providers
 {
-
-    public class SampleProvider : ICitylineProvider
+    public class PingProvider : ICitylineProvider
     {
-        public string Name => "sample";
+        public string Name => "ping";
 
         public async Task<object> GetCarriage(ITicketHolder ticket, IContext context, CancellationToken cancellationToken = default(CancellationToken))
         {
             var myState = ticket.GetTicket<MyState>();
 
             if (myState != null)
-                if ((DateTime.UtcNow - myState.Created).TotalSeconds < 5)
+                if ((DateTime.UtcNow - myState.Created).TotalSeconds < 30)
                     return null;
 
             ticket.UpdateTicket(new MyState());
@@ -23,7 +22,7 @@ namespace Cityline.WebTests
             // simulate some work
             await Task.Delay(2);
 
-            return new { hello = "world" };
+            return new { Ping = DateTime.UtcNow };
         }
 
         class MyState 
