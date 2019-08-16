@@ -38,27 +38,35 @@ namespace Cityline
         {
             var train = new Dictionary<string, Carriage>();
 
-            List<Task> tasks = new List<Task>();
-            foreach (var provider in _providers)
+            do 
             {
-                TicketHolder ticket = null;
-
-                if (request?.Tickets != null)
+                List<Task> tasks = new List<Task>();
+                foreach (var provider in _providers)
                 {
-                    if (request.Tickets.ContainsKey(provider.Name))
-                        ticket = new TicketHolder(request.Tickets[provider.Name]);
+                    TicketHolder ticket = null;
+
+                    if (request?.Tickets != null)
+                    {
+                        if (request.Tickets.ContainsKey(provider.Name))
+                            ticket = new TicketHolder(request.Tickets[provider.Name]);
+                    }
+
+                    ticket = ticket ?? new TicketHolder();
+
+                    tasks.Add(Task.Run(async () =>
+                    {
+                        await RequestCarriage(provider, ticket, context, train, cancellationToken);
+                    }, cancellationToken));
+
                 }
 
-                ticket = ticket ?? new TicketHolder();
+                await Task.WhenAll(tasks.ToArray());
 
-                tasks.Add(Task.Run(async () =>
-                {
-                    await RequestCarriage(provider, ticket, context, train, cancellationToken);
-                }, cancellationToken));
+                if (train.Count == 0)
+                    await Task.Delay(1000);
 
-            }
+            } while (train.Count == 0);
 
-            await Task.WhenAll(tasks.ToArray());
 
             return new CitylineResponse
             {
@@ -70,6 +78,9 @@ namespace Cityline
         {
             var response = await provider.GetCarriage(ticketHolder, context);
             
+            if (response == null)
+                return;
+
             train.Add(provider.Name, new Carriage {
                 Ticket = ticketHolder.AsString(),
                 Cargo = response

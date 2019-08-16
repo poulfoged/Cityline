@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+      "noImplicitAny": false,
+      "noEmitOnError": true,
+      "sourceMap": true,
+      "target": "es5",
+      "experimentalDecorators": true,
+      "module": "esnext",
+      "moduleResolution": "node",
+      "baseUrl": ".",
+      "lib": [
+        "dom",
+        "es5",
+        "scripthost",
+        "es2015.iterable",
+        "es2015.promise"
+      ]
+    },
+    "compileOnSave": false,
+    "exclude": [
+      "obj",
+      "node_modules"
+    ]
+  }
