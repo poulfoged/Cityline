@@ -23,7 +23,6 @@ namespace Cityline.WebTests.Controllers
         [HttpPost]
         public async Task<ActionResult<CitylineResponse>> StartAsync(Cityline.CitylineRequest request, CancellationToken cancellationToken = default(CancellationToken))
         {
-            //var service = new CitylineService(new ICitylineProvider[] {new PingProvider(), new RandomProvider()});
             var context = new Context { RequestUrl = new Uri(Request.GetEncodedUrl()), User = User };
             return await _citylineService.GetCarriage(request, context, cancellationToken);
         }

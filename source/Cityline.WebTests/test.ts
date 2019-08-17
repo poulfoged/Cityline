@@ -6,7 +6,7 @@ const client = new CitylineClient()
 
 
 (async () => {
-    const environment = await client.latestFrame<EnvironmentInfo>("environment", true);
+    const environment = await client.previousTrain<EnvironmentInfo>("environment", true);
     console.log("We got env", environment);
 })();
 

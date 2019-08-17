@@ -6,15 +6,16 @@ interface EventMap {
 }
 
 export class CitylineClient {
+    private static _instance = new CitylineClient();
     private eventTarget = new EventTarget();
     private _protocol: ICitylineProtocol;
-    private static _instance = new CitylineClient();
     private _initialize: Promise<void>;
-    public static get instance() { return CitylineClient._instance; }
     private _frames: { [key: string]: IFrame } = {};
-    private wait = ms => new Promise(r => window.setTimeout(r, ms));
+    private _wait = ms => new Promise(r => window.setTimeout(r, ms));
     private _enableDebug;
-
+    
+    public static get instance() { return CitylineClient._instance; }
+    
     public configure(protocol: ICitylineProtocol, enableDebug = false) {
         if (!protocol)
             throw new Error("protocol must be provided.")
@@ -50,7 +51,7 @@ export class CitylineClient {
             // wait for config
             while(!this._protocol) {
                 this.log(() => "Waiting for protocol to be set");
-                await this.wait(100);
+                await this._wait(100);
             }
                 
             this.log(() => "Starting listener");
@@ -66,7 +67,7 @@ export class CitylineClient {
         return this._initialize;
     }
 
-    async latestFrame<T>(name: string, throwError = true) {
+    async previousTrain<T>(name: string, throwError = true) {
         await this.initialize();
         const latest = this._frames[name];
 
@@ -82,7 +83,7 @@ export class CitylineClient {
         for(const key in response.carriages) {
             this.log(() => `Storing frame ${key} and raising event`);
             this._frames[key] = response.carriages[key]; 
-            this.eventTarget.dispatchEvent(new CustomEvent(key, { detail: response.carriages[key] }))
+            this.eventTarget.dispatchEvent(new CustomEvent(key, { detail: response.carriages[key].cargo }))
         }
     }
 
