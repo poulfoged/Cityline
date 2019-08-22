@@ -1,13 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
-using System.Security.Principal;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using Cityline;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using System.Threading;
 
 namespace Cityline
 {
@@ -43,15 +40,23 @@ namespace Cityline
                     #pragma warning disable 4014
                     Task.Run(async () => 
                     {
-                        await RunProducer(provider, stream, ticket, context, cancellationToken);
+                        try {
+                            await RunProducer(provider, stream, ticket, context, cancellationToken);
 
-                        if (request.Tickets.ContainsKey(name))
-                            request.Tickets[name] = ticket.AsString();
-                        else
-                            request.Tickets.Add(name, ticket.AsString());
-
-                        queue.Enqueue(provider);
-                    }).ConfigureAwait(false);
+                            if (request.Tickets.ContainsKey(name))
+                                request.Tickets[name] = ticket.AsString();
+                            else
+                                request.Tickets.Add(name, ticket.AsString());
+                        } finally {
+                            queue.Enqueue(provider);
+                        }
+                    }).ContinueWith(t => 
+                    {
+                        if (t.Exception != null)  
+                            throw t.Exception;
+                    }, cancellationToken, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.FromCurrentSynchronizationContext())
+                    .ConfigureAwait(false)
+                    ;
                     #pragma warning restore 4014
 
                     await Task.Delay(200);
