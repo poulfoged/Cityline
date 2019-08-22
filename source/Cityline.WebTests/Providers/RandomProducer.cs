@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace Cityline.WebTests.Providers
 {
-    public class RandomProvider : ICitylineProvider
+    public class RandomProducer : ICitylineProducer
     {
         public string Name => "random";
         private static Random random = new Random();
 
-        public async Task<object> GetCarriage(ITicketHolder ticket, IContext context, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<object> GetFrame(ITicketHolder ticket, IContext context, CancellationToken cancellationToken = default(CancellationToken))
         {
             var myState = ticket.GetTicket<MyState>();
 

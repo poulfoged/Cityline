@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,25 +11,39 @@ namespace Cityline.Tests
     public class CitylineServiceTests
     {
         [TestMethod]
-        public async Task Can_call_provider()
+        public async Task Can_write_to_stream()
         {
             ////Arrange
             var service = new CitylineService(new[] { new SampleProvider()});
-
+            var stream = new MemoryStream();
+            var cancellationTokenSource = new CancellationTokenSource();
+            cancellationTokenSource.CancelAfter(1000);
+            
             ////Act
-            var result = await service.GetCarriage(new CitylineRequest(), null);
+            await service.WriteStream(stream, new CitylineRequest(), null, cancellationTokenSource.Token);
 
             ////Assert
-            var carriage = result.Carriages.First();
-            Assert.AreEqual("sample", carriage.Key);
+            stream.Position = 0;
+            string eventName;
+            string eventData;
+            string eventTicket;
+
+            using (var reader = new StreamReader(stream)) {
+                eventTicket = await reader.ReadLineAsync();
+                eventName = await reader.ReadLineAsync();
+                eventData = await reader.ReadLineAsync();
+                
+            }
+
+            Assert.AreEqual("sample", eventName);
         }
     }
 
-    public class SampleProvider : ICitylineProvider
+    public class SampleProvider : ICitylineProducer
     {
         public string Name => "sample";
 
-        public Task<object> GetCarriage(ITicketHolder ticket, IContext context, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<object> GetFrame(ITicketHolder ticket, IContext context, CancellationToken cancellationToken = default(CancellationToken))
         {
             var myState = ticket.GetTicket<MyState>();
 

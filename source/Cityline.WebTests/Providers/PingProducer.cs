@@ -5,16 +5,16 @@ using System.Threading.Tasks;
 
 namespace Cityline.WebTests.Providers
 {
-    public class PingProvider : ICitylineProvider
+    public class PingProducer : ICitylineProducer
     {
         public string Name => "ping";
 
-        public async Task<object> GetCarriage(ITicketHolder ticket, IContext context, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<object> GetFrame(ITicketHolder ticket, IContext context, CancellationToken cancellationToken = default(CancellationToken))
         {
             var myState = ticket.GetTicket<MyState>();
 
             if (myState != null)
-                if ((DateTime.UtcNow - myState.Created).TotalSeconds < 30)
+                if ((DateTime.UtcNow - myState.Created).TotalSeconds < 5)
                     return null;
 
             ticket.UpdateTicket(new MyState());

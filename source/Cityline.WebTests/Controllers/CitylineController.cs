@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -14,17 +13,17 @@ namespace Cityline.WebTests.Controllers
     {
         private CitylineService _citylineService;
 
-        public CitylineController(IEnumerable<ICitylineProvider> providers) 
+        public CitylineController(IEnumerable<ICitylineProducer> providers) 
         {
             _citylineService = new CitylineService(providers);
         }
 
-        // GET api/values
         [HttpPost]
-        public async Task<ActionResult<CitylineResponse>> StartAsync(Cityline.CitylineRequest request, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task StartStream(Cityline.CitylineRequest request, CancellationToken cancellationToken = default(CancellationToken))
         {
             var context = new Context { RequestUrl = new Uri(Request.GetEncodedUrl()), User = User };
-            return await _citylineService.GetCarriage(request, context, cancellationToken);
+            Response.Headers.Add("content-type", "text/event-stream");
+            await _citylineService.WriteStream(Response.Body, request, context, cancellationToken);
         }
     }
 }

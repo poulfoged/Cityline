@@ -1,29 +1,18 @@
-import { CitylineClient, CitylineRestProtocol } from "./CitylineClient";
+import { CitylineClient, Frame } from "cityline-client";
 
-const client = new CitylineClient()
-    .configure(new CitylineRestProtocol("https://localhost:5001/cityline"));
-
-
+const client = new CitylineClient(`${location.href}cityline`);
+    
+const outputElement = document.querySelector("[name=output]") as HTMLElement;
 
 (async () => {
-    const environment = await client.previousTrain<EnvironmentInfo>("environment", true);
-    console.log("We got env", environment);
+    const initialData = await client.getFrames("environment", "ping");
+    console.log("We got initial", initialData);
 })();
 
-interface EnvironmentInfo {
-    clientStarted: string;
-    started: string;
-    version: any;
-}
+(async () => {
+    const env = await client.getFrame<any>("environment");
+    console.log("We got environment", env);
+})();
 
-client.addEventListener("ping", (event: CustomEvent<Ping>) => { console.log("Got ping", event.detail); });
-
-client.addEventListener("random", (event: CustomEvent<Random>) => { console.log("Got random", event.detail); });
-
-interface Ping {
-    ping: string;
-}
-
-interface Random {
-    nextResponseInSeconds: number;
-}
+client.addEventListener("frame-received", (event: CustomEvent<Frame>) => { outputElement.innerHTML += (`Got ${event.detail.event} ${JSON.stringify(event.detail.data)}<br />`); });
+client.addEventListener("error", (event: CustomEvent<any>) => { console.log("Got error", event.detail); });

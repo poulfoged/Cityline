@@ -16,6 +16,7 @@
         "webpack-cli": "^3.3.6"
     },
     "dependencies": {
-        "@ungap/event-target": "^0.1.0"
+        "@ungap/event-target": "^0.1.0",
+        "cityline-client": "^1.0.3"
     }
 }

@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 
 namespace Cityline
 {
-    public interface ICitylineProvider
+    public interface ICitylineProducer
     {
-        string Name { get; }
-        Task<object> GetCarriage(ITicketHolder ticketHolder, IContext context, CancellationToken cancellationToken = default(CancellationToken)); 
+        Task<object> GetFrame(ITicketHolder ticketHolder, IContext context, CancellationToken cancellationToken = default(CancellationToken)); 
     }
 }
