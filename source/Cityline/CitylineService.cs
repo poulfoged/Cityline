@@ -26,7 +26,7 @@ namespace Cityline
             {
                 if (queue.Count > 0) {
                     var provider = queue.Dequeue();
-                    var name = provider.Name();
+                    var name = provider.Name;
                     TicketHolder ticket = null;
 
                     if (request.Tickets == null)
@@ -77,7 +77,7 @@ namespace Cityline
             {
                 using (var writer = new StreamWriter(stream, Encoding.UTF8, 1024, true)) {
                     writer.WriteLine($"id: {ticket.AsString()}");
-                    writer.WriteLine($"event: {provider.Name()}");
+                    writer.WriteLine($"event: {provider.Name}");
                     writer.WriteLine($"data: {JsonConvert.SerializeObject(response, settings)}");
                     writer.WriteLine();
                 }
