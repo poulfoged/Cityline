@@ -54,7 +54,7 @@ namespace Cityline
                     {
                         if (t.Exception != null)  
                             throw t.Exception;
-                    }, cancellationToken, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.FromCurrentSynchronizationContext())
+                    }, cancellationToken, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Current)
                     .ConfigureAwait(false)
                     ;
                     #pragma warning restore 4014
