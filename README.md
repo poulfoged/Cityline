@@ -9,15 +9,12 @@ Real-time library for sending events to Cityline clients. Deeply inspired by ser
 
 
 ```
-
  Client Side (JS)                        Server side (C#)
 
  ┌──────────────────────────────┐       ┌──────────────────────────────┐      ┌──────────────────────────────┐
  │                              │       │                              │      │                              ├─┐
  │                              │       │                              │      │                              │ │
- │                              │       │                              │      │                              │ │
  │       cityline-client        │◀─────▶│       CitylineService        │─────▶│      ICitylineProducer       │ │
- │                              │       │                              │      │                              │ │
  │                              │       │                              │      │                              │ │
  │                              │       │                              │      │                              │ │
  └──────────────────────────────┘       └──────────────────────────────┘      └──┬───────────────────────────┘ │
@@ -28,6 +25,5 @@ Real-time library for sending events to Cityline clients. Deeply inspired by ser
     (for preloading data)                 - allows state from call to call
   - wait for specific set of frames
     (app initialization)
-
 ```
 
