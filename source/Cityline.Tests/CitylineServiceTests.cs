@@ -10,8 +10,7 @@ namespace Cityline.Tests
     [TestClass]
     public class CitylineServiceTests
     {
-        [TestInitialize]
-        public void TestSetUp()
+        static CitylineServiceTests()
         {
             SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
         }
