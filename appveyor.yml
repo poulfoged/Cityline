@@ -60,3 +60,4 @@ deploy:
   symbol_server:           # remove to push symbols to SymbolSource.org
   on:
     branch: master # only this will work
+    
