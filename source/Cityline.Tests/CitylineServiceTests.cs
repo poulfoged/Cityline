@@ -10,6 +10,12 @@ namespace Cityline.Tests
     [TestClass]
     public class CitylineServiceTests
     {
+        [TestInitialize]
+        public void TestSetUp()
+        {
+            SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
+        }
+
         [TestMethod]
         public async Task Can_write_to_stream()
         {
