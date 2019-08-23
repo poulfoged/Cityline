@@ -40,7 +40,7 @@ namespace Cityline.Tests
                 
             }
 
-            Assert.AreEqual("sample", eventName);
+            Assert.AreEqual("event: sample", eventName);
         }
     }
 
