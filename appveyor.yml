@@ -26,7 +26,7 @@ configuration: Release
 
 install:
   # install modules
-#  - npm install --prefix source/Cityline.WebTests/
+  - npm install --prefix source/Cityline.WebTests/
 
 before_build:
   - nuget restore "source\Cityline.sln"
