@@ -58,3 +58,5 @@ deploy:
     secure: p+HwXyy6pRVPBMV3d+ZSGnHJLgK410LiX+CNJOSGO9VxBelH4WyWNhVT63611hrx
   skip_symbols: false
   symbol_server:           # remove to push symbols to SymbolSource.org
+  on:
+    branch: master # only this will work
