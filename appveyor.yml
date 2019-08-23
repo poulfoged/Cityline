@@ -24,6 +24,16 @@ init:
 # build Configuration, i.e. Debug, Release, etc.
 configuration: Release
 
+dotnet_csproj:
+  patch: true
+  file: '**\*.csproj'
+  version: '{version}'
+  package_version: '{version}'
+  assembly_version: '{version}'
+  file_version: '{version}'
+  informational_version: '{version}'
+
+
 install:
   # install modules
   - npm install source\Cityline.WebTests\ --prefix source\Cityline.WebTests\
