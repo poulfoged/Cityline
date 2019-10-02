@@ -11,15 +11,15 @@ namespace Cityline
     public class CitylineService
     {
         private static readonly object padLock = new object(); 
-        private IEnumerable<ICitylineProducer> _providers;
-        private static JsonSerializerSettings settings = new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver(), Formatting = Formatting.None };
+        private readonly IEnumerable<ICitylineProducer> _providers;
+        private static readonly JsonSerializerSettings settings = new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver(), Formatting = Formatting.None };
     
         public CitylineService(IEnumerable<ICitylineProducer> providers) 
         {
             _providers = providers;
         }
 
-        public async Task WriteStream(Stream stream, CitylineRequest request, IContext context, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task WriteStream(Stream stream, CitylineRequest request, IContext context, CancellationToken cancellationToken = default)
         {
             var queue = new Queue<ICitylineProducer>(_providers);
             while (!cancellationToken.IsCancellationRequested)
@@ -34,7 +34,7 @@ namespace Cityline
 
                     if (request.Tickets.ContainsKey(name))
                         ticket = new TicketHolder(request.Tickets[name]);
-                
+
                     ticket = ticket ?? new TicketHolder();
 
                     #pragma warning disable 4014
@@ -66,7 +66,7 @@ namespace Cityline
             }
         }
 
-        private async Task RunProducer(ICitylineProducer provider, Stream stream, TicketHolder ticket, IContext context, CancellationToken cancellationToken)
+        private async Task RunProducer(ICitylineProducer provider, Stream stream, TicketHolder ticket, IContext context, CancellationToken cancellationToken = default)
         {
             var response = await provider.GetFrame(ticket, context, cancellationToken);
 

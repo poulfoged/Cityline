@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Cityline
 {
     public class Carriage
