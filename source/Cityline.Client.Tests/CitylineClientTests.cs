@@ -80,31 +80,67 @@ namespace Cityline.Client.Tests
         {
             ////Arrange
             int counter = 0;
-            var sampleHeaderValue = Guid.NewGuid().ToString();
             var builder = new WebHostBuilder()
                     .ConfigureTestServices(x => x.AddSingleton<ICitylineProducer, PingProducer>())
                     .UseStartup<Startup>();
 
             using (var _server = new TestServer(builder)) 
+            using (var client = new CitylineClient(new Uri("/cityline", UriKind.Relative), () => _server.CreateClient()))
             {
-                var httpClient = _server.CreateClient();
-                using (var client = new CitylineClient(new Uri("/cityline", UriKind.Relative), () => httpClient, msg => msg.Headers.Add("sample", sampleHeaderValue)))
+                client.Subscribe("ping", frame =>
                 {
-                    client.Subscribe("ping", frame =>
-                    {
-                        counter = frame.As<PingResponse>().CallCount;  
-                    });
+                    counter = frame.As<PingResponse>().CallCount;  
+                });
 
-                    ////Act
-                    // we will force client to break connection but then resume where it left. 
-                    // With no state whis will run forever
-                    while (counter <= 8)
-                        await client.StartListening(new CancellationTokenSource(200).Token);
+                ////Act
+                // we will force client to break connection but then resume where it left. 
+                // With no state whis will run forever
+                while (counter <= 8)
+                    await client.StartListening(new CancellationTokenSource(200).Token);
 
-                    ////Assert
-                    Assert.IsTrue(counter >= 8); // we expect counter to reach at least 8 in 1 second
-                }
+                ////Assert
+                Assert.IsTrue(counter >= 8); // we expect counter to reach at least 8 in 1 second
             }
+        
+        }   
+
+        [TestMethod]
+        public async Task Will_retry_on_error() 
+        {
+            ////Arrange
+            bool wasCalled = false;
+            var builder = new WebHostBuilder()
+                    .ConfigureTestServices(x => x.AddSingleton<ICitylineProducer, PingProducer>())
+                    .UseStartup<Startup>();
+
+            using (var _server = new TestServer(builder)) 
+            using (CancellationTokenSource source = new CancellationTokenSource()) // max run time
+            using (var client = new CitylineClient(new Uri("/cityline-500", UriKind.Relative), () => _server.CreateClient()))
+            {
+                client.RetryOnErrorDelay = TimeSpan.FromSeconds(1);
+                client.Subscribe("ping", frame =>
+                {
+                    wasCalled = true;
+                    source.Cancel();
+                });
+
+
+                await (_server as  Microsoft.AspNetCore.Hosting.Server.IServer).StopAsync(default(CancellationToken));
+
+                var _ = Task.Run(async () => {
+                    await Task.Delay(TimeSpan.FromSeconds(1));
+                    client._serverUrl = new Uri("/cityline", UriKind.Relative);
+                });
+
+                ////Act
+                // we will force client to break connection but then resume where it left. 
+                // With no state whis will run forever
+                await client.StartListening(source.Token);
+
+                ////Assert
+                Assert.IsTrue(wasCalled); // we expect counter to reach at least 8 in 1 second
+            }
+        
         }   
     }
 }

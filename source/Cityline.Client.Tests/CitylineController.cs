@@ -25,6 +25,12 @@ namespace Cityline.WebTests.Controllers
             Response.Headers.Add("content-type", "text/event-stream");
             await _citylineService.WriteStream(Response.Body, request, context, cancellationToken);
         }
+
+        [HttpPost("~/cityline-500")]
+        public ActionResult Simulate_500(CitylineRequest request, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return new StatusCodeResult(500);
+        }
     }
 
     public class CustomContext : Context 
