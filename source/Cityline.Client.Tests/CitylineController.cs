@@ -19,11 +19,16 @@ namespace Cityline.WebTests.Controllers
         }
 
         [HttpPost]
-        public async Task StartStream(Cityline.CitylineRequest request, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task StartStream(CitylineRequest request, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var context = new Context { RequestUrl = new Uri(Request.GetEncodedUrl()), User = User };
+           var context = new CustomContext { RequestUrl = new Uri(Request.GetEncodedUrl()), User = User, SampleHeader = Request.Headers["sample"] };
             Response.Headers.Add("content-type", "text/event-stream");
             await _citylineService.WriteStream(Response.Body, request, context, cancellationToken);
         }
+    }
+
+    public class CustomContext : Context 
+    {
+        public string SampleHeader { get; set; }
     }
 }
